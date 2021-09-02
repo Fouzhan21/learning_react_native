@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,6 +6,7 @@ import {
   useWindowDimensions,
   Image,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 import tailwind from 'tailwind-rn';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -17,6 +18,47 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(false);
+
+  const [cart, setCart] = useState([])
+  const [total, setTotal] = useState(0)
+
+  useEffect(() => {
+    let total = 0
+    for (let item of cart) {
+      // console.log(item)
+      total += parseInt(item.price_variation[0].amount)
+    }
+    setTotal(total)
+  }, [cart])
+
+  const incrementAction = (id) => {
+    // console.log('Incremented', id)
+    let isInCart = cart.find(item => item.price_variation[0].variation_id === id)
+    if (isInCart) {
+      // Product already in cart increse the quantity
+      // 1. Find the index of item in cart
+      // 2. Remove that item from the cart
+      // 3. Update the new item to the cart
+      let index = cart.findIndex(item => item.price_variation[0].variation_id === id)
+      let cartObj = {
+        ...isInCart
+      }
+      cartObj.quantity++
+      cart.splice(index, 1, cartObj)
+      setCart([...cart, cartObj])
+    }
+    else {
+      let item = products.find(item => item.price_variation[0].variation_id === id)
+      let newItem = {
+        ...item,
+      }
+      newItem.quantity = 1
+      setCart([...cart, newItem])
+    }
+  }
+  const decrementAction = () => {
+    console.log('Decrement')
+  }
 
   const fetchData = async () => {
     try {
@@ -30,7 +72,7 @@ export default function HomeScreen() {
           body: '{"branch_id":"60"}',
         },
       );
-      
+
       let myJsonResponse = await response.json();
       if (myJsonResponse.status === 'success') {
         // console.log(JSON.stringify(myJsonResponse));
@@ -49,83 +91,100 @@ export default function HomeScreen() {
     (async () => {
       setLoading(true);
       let response = await fetchData();
-      if(response){
+      if (response) {
         setProducts(response)
       }
       setLoading(false);
-
-      console.log(response);
     })();
   }, []);
 
   return (
-    <View style={(tailwind('h-full'), {backgroundColor: '#FFF8E8'})}>
-      <View style={tailwind('bg-black rounded-b-xl')}>
-        <View style={tailwind('pt-16 mb-10 pl-6 flex flex-row')}>
-          <Image
-            source={require('../Image/PaneerPizza.png')}
-            style={{width: 100, height: 100}}
-          />
-          <View style={tailwind('flex-grow mx-2')}>
-            <Text
-              style={{
-                color: '#FFEAC0',
-                fontSize: 16,
-                paddingLeft: 10,
-                paddingTop: 6,
-                fontWeight: 'bold',
-              }}>
-              KFC
-            </Text>
-            <Text
-              style={{
-                color: '#CBA960',
-                fontSize: 10,
-                paddingLeft: 10,
-                paddingTop: 6,
-              }}>
-              Fast Food
-            </Text>
-            <Text
-              style={{
-                borderBottomColor: '#CBA960',
-                borderBottomWidth: 1,
-                marginLeft: 10,
-              }}></Text>
-            <View
-              style={tailwind(
-                'flex-row justify-between items-center ml-3 py-2',
-              )}>
-              <View style={tailwind('flex flex-row items-center')}>
-                <Icon name="star" size={18} color="#C2A069" />
+    <View style={tailwind('h-full')}>
+      <ScrollView>
+        <View style={(tailwind('h-full'), { backgroundColor: '#FFF8E8' })}>
+          <View style={tailwind('bg-black rounded-b-xl')}>
+            <View style={tailwind('pt-16 mb-10 pl-6 flex flex-row')}>
+              <Image
+                source={require('../Image/PaneerPizza.png')}
+                style={{ width: 100, height: 100 }}
+              />
+              <View style={tailwind('flex-grow mx-2')}>
                 <Text
-                  style={[tailwind('px-1'), {color: '#CBA960', fontSize: 12}]}>
-                  4.3
+                  style={{
+                    color: '#FFEAC0',
+                    fontSize: 16,
+                    paddingLeft: 10,
+                    paddingTop: 6,
+                    fontWeight: 'bold',
+                  }}>
+                  KFC
                 </Text>
-              </View>
+                <Text
+                  style={{
+                    color: '#CBA960',
+                    fontSize: 10,
+                    paddingLeft: 10,
+                    paddingTop: 6,
+                  }}>
+                  Fast Food
+                </Text>
+                <Text
+                  style={{
+                    borderBottomColor: '#CBA960',
+                    borderBottomWidth: 1,
+                    marginLeft: 10,
+                  }}></Text>
+                <View
+                  style={tailwind(
+                    'flex-row justify-between items-center ml-3 py-2',
+                  )}>
+                  <View style={tailwind('flex flex-row items-center')}>
+                    <Icon name="star" size={18} color="#C2A069" />
+                    <Text
+                      style={[tailwind('px-1'), { color: '#CBA960', fontSize: 12 }]}>
+                      4.3
+                    </Text>
+                  </View>
 
-              <Text style={{color: '#CBA960', fontSize: 12}}>Bangalore</Text>
-              <Text style={{color: '#CBA960', fontSize: 12}}>2 kms</Text>
+                  <Text style={{ color: '#CBA960', fontSize: 12 }}>Bangalore</Text>
+                  <Text style={{ color: '#CBA960', fontSize: 12 }}>2 kms</Text>
+                </View>
+              </View>
             </View>
           </View>
-        </View>
-      </View>
-      <View style={tailwind('py-2 px-4')}>
-        <Text style={tailwind('text-xl font-bold pb-4 ')}>Recommended</Text>
+          <View style={tailwind('py-2 px-4')}>
+            <Text style={tailwind('text-xl font-bold pb-4 ')}>Recommended</Text>
 
-        {/* Product Section*/}
-        {loading ? <Text>Loading ...</Text> : null}
-        {products.map(item => {
-          return (
-            <ProductCard
-              name={item.product_name}
-              image={item.img_url}
-              price={item.price_variation[0].amount}
-              quantity={0}
-            />
-          );
-        })}
-      </View>
+            {/* Product Section*/}
+            {loading ? <Text>Loading ...</Text> : null}
+            {products.map(item => {
+              return (
+                <ProductCard
+                  key={item.price_variation[0].variation_id}
+                  id={item.price_variation[0].variation_id}
+                  name={item.product_name}
+                  image={item.img_url}
+                  price={item.price_variation[0].amount}
+                  incrementAction={incrementAction}
+                  decrementAction={decrementAction}
+                  cart={cart}
+                />
+              );
+            })}
+          </View>
+        </View>
+
+
+
+      </ScrollView>
+      {
+        cart.length > 0 ? (
+          <View style={tailwind('bg-red-600 p-3')}>
+            <Text style={tailwind('text-white text-lg')}>{cart.length} Items  [PRICE]: {total} </Text>
+          </View>
+        ) : null
+      }
+
     </View>
   );
 }
