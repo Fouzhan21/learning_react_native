@@ -6,20 +6,31 @@ import {
   useWindowDimensions,
   Image,
   ScrollView,
+  Touchable,
+  TouchableOpacity,
 } from 'react-native';
 import tailwind from 'tailwind-rn';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ProductCard from '../components/ProductCard';
+import { useSelector, useDispatch } from 'react-redux'
 
 export default function HomeScreen() {
   const width = useWindowDimensions().width;
-
+  const dispatch = useDispatch()
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(false);
 
   const [cart, setCart] = useState([]);
   const [total, setTotal] = useState(0);
+
+  const IPState = useSelector(state => state.ip)
+
+  useEffect(() => {
+    // console.log(IPState)
+  }, [])
+
+
 
   useEffect(() => {
     let total = 0;
@@ -112,7 +123,7 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    console.log('mounted');
+    // console.log('mounted');
     (async () => {
       setLoading(true);
       let response = await fetchData();
@@ -123,15 +134,32 @@ export default function HomeScreen() {
     })();
   }, []);
 
+  let getGoogleDNSInfo = async ()=>{
+    console.log('Clicked')
+    dispatch({
+      type:"SAVE_IP",
+      payload:"8.8.8.8"
+    })
+
+  }
+
   return (
     <View style={tailwind('h-full')}>
+
+      <View style={tailwind('py-5 bg-white')}>
+        <Text style={tailwind('text-center py-2')}>{IPState}</Text>
+        <TouchableOpacity onPress={getGoogleDNSInfo} style={[tailwind('bg-red-500 mx-3 rounded-lg p-4')]}>
+          <Text style={[tailwind("text-white text-center")]}>get Google DNS</Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView>
-        <View style={(tailwind('h-full'), {backgroundColor: '#FFF8E8'})}>
+        <View style={(tailwind('h-full'), { backgroundColor: '#FFF8E8' })}>
           <View style={tailwind('bg-black rounded-b-xl')}>
             <View style={tailwind('pt-16 mb-10 pl-6 flex flex-row')}>
               <Image
                 source={require('../Image/PaneerPizza.png')}
-                style={{width: 100, height: 100}}
+                style={{ width: 100, height: 100 }}
               />
               <View style={tailwind('flex-grow mx-2')}>
                 <Text
@@ -168,16 +196,16 @@ export default function HomeScreen() {
                     <Text
                       style={[
                         tailwind('px-1'),
-                        {color: '#CBA960', fontSize: 12},
+                        { color: '#CBA960', fontSize: 12 },
                       ]}>
                       4.3
                     </Text>
                   </View>
 
-                  <Text style={{color: '#CBA960', fontSize: 12}}>
+                  <Text style={{ color: '#CBA960', fontSize: 12 }}>
                     Bangalore
                   </Text>
-                  <Text style={{color: '#CBA960', fontSize: 12}}>2 kms</Text>
+                  <Text style={{ color: '#CBA960', fontSize: 12 }}>2 kms</Text>
                 </View>
               </View>
             </View>
