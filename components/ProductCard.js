@@ -14,7 +14,10 @@ export default function ProductCard(props) {
       // console.log(`${thisProduct.product_name} Found in Cart in Quantity --> ${thisProduct.quantity}`)
       setQuantity(thisProduct.quantity)
     }
-  }, [props.cart])
+    else{
+      setQuantity(0)
+    }
+    }, [props.cart])
 
   return (
     <View
@@ -33,7 +36,7 @@ export default function ProductCard(props) {
           {
             quantity > 0 ? (
               <>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => props.decrementAction(props.id)  }>
                   <Icon
                     style={tailwind(' text-4xl items-start font-bold px-2 ')}
                     name="md-remove-circle"
@@ -44,7 +47,7 @@ export default function ProductCard(props) {
                 <Text style={tailwind('text-xl items-center py-1 px-2')}>
                   {quantity}
                 </Text>
-                <TouchableOpacity onPress={() => props.incrementAction(props.id)}>
+                <TouchableOpacity onPress={() => props.incrementAction(props.id)  }>
                   <Icon
                     style={tailwind(' text-4xl items-start font-bold px-2')}
                     name="add-circle"

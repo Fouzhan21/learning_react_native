@@ -5,7 +5,6 @@ import {
   View,
   useWindowDimensions,
   Image,
-  TouchableOpacity,
   ScrollView,
 } from 'react-native';
 import tailwind from 'tailwind-rn';
@@ -19,46 +18,72 @@ export default function HomeScreen() {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(false);
 
-  const [cart, setCart] = useState([])
-  const [total, setTotal] = useState(0)
+  const [cart, setCart] = useState([]);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    let total = 0
+    let total = 0;
     for (let item of cart) {
       // console.log(item)
-      total += parseInt(item.price_variation[0].amount)
+      total += parseInt(item.price_variation[0].amount) * parseInt(item.quantity);
     }
-    setTotal(total)
-  }, [cart])
+    setTotal(total);
+  }, [cart]);
 
-  const incrementAction = (id) => {
+  const incrementAction = id => {
     // console.log('Incremented', id)
-    let isInCart = cart.find(item => item.price_variation[0].variation_id === id)
+    let isInCart = cart.find(
+      item => item.price_variation[0].variation_id === id,
+    );
     if (isInCart) {
       // Product already in cart increse the quantity
       // 1. Find the index of item in cart
       // 2. Remove that item from the cart
       // 3. Update the new item to the cart
-      let index = cart.findIndex(item => item.price_variation[0].variation_id === id)
+      let index = cart.findIndex(
+        item => item.price_variation[0].variation_id === id,
+      );
       let cartObj = {
-        ...isInCart
-      }
-      cartObj.quantity++
-      cart.splice(index, 1, cartObj)
-      setCart([...cart, cartObj])
-    }
-    else {
-      let item = products.find(item => item.price_variation[0].variation_id === id)
+        ...isInCart,
+      };
+      cartObj.quantity++;
+      cart.splice(index, 1, cartObj);
+      setCart([...cart]);
+    } else {
+      let item = products.find(
+        item => item.price_variation[0].variation_id === id,
+      );
       let newItem = {
         ...item,
-      }
-      newItem.quantity = 1
-      setCart([...cart, newItem])
+      };
+      newItem.quantity = 1;
+      setCart([...cart, newItem]);
     }
-  }
-  const decrementAction = () => {
-    console.log('Decrement')
-  }
+  };
+  const decrementAction = id => {
+    let isInCart = cart.find(
+      item => item.price_variation[0].variation_id === id,
+    );
+    if (isInCart) {
+      console.log(isInCart);
+      let index = cart.findIndex(
+        item => item.price_variation[0].variation_id === id,
+      );
+      if (isInCart.quantity === 1) {
+        // remove the item
+        cart.splice(index, 1);
+        setCart([...cart]);
+      } else {
+        // Reduce the quantity
+        let cartObj = {
+          ...isInCart,
+        };
+        cartObj.quantity--;
+        cart.splice(index, 1, cartObj);
+        setCart([...cart]);
+      }
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -92,7 +117,7 @@ export default function HomeScreen() {
       setLoading(true);
       let response = await fetchData();
       if (response) {
-        setProducts(response)
+        setProducts(response);
       }
       setLoading(false);
     })();
@@ -101,12 +126,12 @@ export default function HomeScreen() {
   return (
     <View style={tailwind('h-full')}>
       <ScrollView>
-        <View style={(tailwind('h-full'), { backgroundColor: '#FFF8E8' })}>
+        <View style={(tailwind('h-full'), {backgroundColor: '#FFF8E8'})}>
           <View style={tailwind('bg-black rounded-b-xl')}>
             <View style={tailwind('pt-16 mb-10 pl-6 flex flex-row')}>
               <Image
                 source={require('../Image/PaneerPizza.png')}
-                style={{ width: 100, height: 100 }}
+                style={{width: 100, height: 100}}
               />
               <View style={tailwind('flex-grow mx-2')}>
                 <Text
@@ -141,13 +166,18 @@ export default function HomeScreen() {
                   <View style={tailwind('flex flex-row items-center')}>
                     <Icon name="star" size={18} color="#C2A069" />
                     <Text
-                      style={[tailwind('px-1'), { color: '#CBA960', fontSize: 12 }]}>
+                      style={[
+                        tailwind('px-1'),
+                        {color: '#CBA960', fontSize: 12},
+                      ]}>
                       4.3
                     </Text>
                   </View>
 
-                  <Text style={{ color: '#CBA960', fontSize: 12 }}>Bangalore</Text>
-                  <Text style={{ color: '#CBA960', fontSize: 12 }}>2 kms</Text>
+                  <Text style={{color: '#CBA960', fontSize: 12}}>
+                    Bangalore
+                  </Text>
+                  <Text style={{color: '#CBA960', fontSize: 12}}>2 kms</Text>
                 </View>
               </View>
             </View>
@@ -173,18 +203,14 @@ export default function HomeScreen() {
             })}
           </View>
         </View>
-
-
-
       </ScrollView>
-      {
-        cart.length > 0 ? (
-          <View style={tailwind('bg-red-600 p-3')}>
-            <Text style={tailwind('text-white text-lg')}>{cart.length} Items  [PRICE]: {total} </Text>
-          </View>
-        ) : null
-      }
-
+      {cart.length > 0 ? (
+        <View style={tailwind('bg-red-600 p-3')}>
+          <Text style={tailwind('text-white text-lg')}>
+            {cart.length} Items [PRICE]: {total}{' '}
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
 }
